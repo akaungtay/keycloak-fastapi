@@ -4,10 +4,16 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 from fastapi.responses import HTMLResponse
+import os
+import uvicorn
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
+kc_server = os.environ.get('KC_SERVER', 'localhost')
+home_server = os.environ.get('HM_SERVER', 'localhost')
 
-
-keycloak_openid = KeycloakOpenID(server_url="http://localhost:8080/",
+keycloak_openid = KeycloakOpenID(server_url="http://{}:8080/".format(kc_server),
                                  client_id="userclient",
                                  realm_name="userrealm",
                                  client_secret_key="T173C1G9fWviL36t1WCvl55klaBy4Jlv")
@@ -17,12 +23,16 @@ config_well_known = keycloak_openid.well_known()
 # print(config_well_known)
 # Get Code With Oauth Authorization Request
 auth_url = keycloak_openid.auth_url(
-    redirect_uri="http://localhost:8501/auth_redirect",
+    redirect_uri="http://{}:8501/auth_redirect".format(home_server),
     scope="email",
     state="your_state_info"
     )
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+templates = Jinja2Templates(directory="templates")
 
 auth_scheme = HTTPBearer()
 
@@ -78,7 +88,12 @@ async def read_users_me(
     return current_user
 
 @app.get("/greet", response_class=HTMLResponse)
-async def greet_user(
+async def greet_user(request: Request,
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    return HTMLResponse(f"<h1>Welcome, {current_user['email']}!</h1>")
+    # return HTMLResponse(f"<h1>Welcome, {current_user['email']}!</h1>")
+    return templates.TemplateResponse(
+        request=request, name="home.html", context={"email": current_user['email']})
+
+if __name__ == "__main__":
+    uvicorn.run("keycloak_login:app", host="0.0.0.0", port=int(os.environ.get('PORT', 8501)), log_level="info")
