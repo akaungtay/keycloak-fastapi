@@ -4,7 +4,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 from fastapi.responses import HTMLResponse
-import os
+import os, time
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
@@ -19,10 +19,18 @@ kc_secret = os.environ.get('KC_SECRET_KEY', 'T173C1G9fWviL36t1WCvl55klaBy4Jlv')
 home_server = os.environ.get('HM_SERVER', 'localhost')
 home_port = int(os.environ.get('PORT', 8501))
 
-keycloak_openid = KeycloakOpenID(server_url="http://{}:{}/".format(kc_server,kc_port),
-                                 client_id=kc_client_id,
-                                 realm_name=kc_realm,
-                                 client_secret_key=kc_secret)
+retries = 5
+while True:
+    try:
+        keycloak_openid = KeycloakOpenID(server_url="http://{}:{}/".format(kc_server,kc_port),
+                                        client_id=kc_client_id,
+                                        realm_name=kc_realm,
+                                        client_secret_key=kc_secret)
+    except as exc:
+        if retries == 0:
+            raise exc
+        retries -= 1
+        time.sleep(2)
 
 # Get WellKnown
 config_well_known = keycloak_openid.well_known()
