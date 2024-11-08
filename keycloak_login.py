@@ -26,9 +26,9 @@ while True:
                                         client_id=kc_client_id,
                                         realm_name=kc_realm,
                                         client_secret_key=kc_secret)
-    except as exc:
+    except:
         if retries == 0:
-            raise exc
+            exit
         retries -= 1
         time.sleep(2)
 
