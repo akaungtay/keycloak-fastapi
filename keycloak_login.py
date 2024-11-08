@@ -11,13 +11,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 kc_server = os.environ.get('KC_SERVER', 'localhost')
-kc_port=int(os.environ.get('KC_PORT', 8080))
-kc_client_id=int(os.environ.get('KC_CLIENT_ID', 'userclient'))
-kc_realm=int(os.environ.get('KC_REALM', 'userrealm'))
-kc_secret=int(os.environ.get('KC_SECRET_KEY', 'T173C1G9fWviL36t1WCvl55klaBy4Jlv'))
+kc_port = int(os.environ.get('KC_PORT', 8080))
+kc_client_id = os.environ.get('KC_CLIENT_ID', 'userclient')
+kc_realm = os.environ.get('KC_REALM', 'userrealm')
+kc_secret = os.environ.get('KC_SECRET_KEY', 'T173C1G9fWviL36t1WCvl55klaBy4Jlv')
 
 home_server = os.environ.get('HM_SERVER', 'localhost')
-home_port=int(os.environ.get('PORT', 8501))
+home_port = int(os.environ.get('PORT', 8501))
 
 keycloak_openid = KeycloakOpenID(server_url="http://{}:{}/".format(kc_server,kc_port),
                                  client_id=kc_client_id,
