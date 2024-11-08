@@ -3,6 +3,10 @@ services:
     environment:
       - PORT=8501
       - KC_SERVER="keycloak"
+      - KC_PORT=8080
+      - KC_CLIENT_ID="userclient"
+      - KC_REALM="userrealm"
+      - KC_SECRET_KEY="T173C1G9fWviL36t1WCvl55klaBy4Jlv"
       - HM_SERVER="localhost"
     build: .
     ports:
