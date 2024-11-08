@@ -11,9 +11,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 kc_server = os.environ.get('KC_SERVER', 'localhost')
+kc_port=int(os.environ.get('KC_PORT', 8080))
 home_server = os.environ.get('HM_SERVER', 'localhost')
+home_port=int(os.environ.get('PORT', 8501))
 
-keycloak_openid = KeycloakOpenID(server_url="http://{}:8080/".format(kc_server),
+keycloak_openid = KeycloakOpenID(server_url="http://{}:{}/".format(kc_server,kc_port),
                                  client_id="userclient",
                                  realm_name="userrealm",
                                  client_secret_key="T173C1G9fWviL36t1WCvl55klaBy4Jlv")
@@ -23,7 +25,7 @@ config_well_known = keycloak_openid.well_known()
 # print(config_well_known)
 # Get Code With Oauth Authorization Request
 auth_url = keycloak_openid.auth_url(
-    redirect_uri="http://{}:8501/auth_redirect".format(home_server),
+    redirect_uri="http://{}:{}/auth_redirect".format(home_server,home_port),
     scope="email",
     state="your_state_info"
     )
@@ -96,4 +98,4 @@ async def greet_user(request: Request,
         request=request, name="home.html", context={"email": current_user['email']})
 
 if __name__ == "__main__":
-    uvicorn.run("keycloak_login:app", host="0.0.0.0", port=int(os.environ.get('PORT', 8501)), log_level="info")
+    uvicorn.run("keycloak_login:app", host="0.0.0.0", port=home_port, log_level="info")
