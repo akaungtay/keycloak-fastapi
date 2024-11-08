@@ -1,0 +1,17 @@
+services:
+  web:
+    environment:
+      - PORT=8501
+      - KC_SERVER="keycloak"
+      - HM_SERVER="localhost"
+    build: .
+    ports:
+      - "8501:8501"
+  keycloak:
+    image: "keycloak/http:23.0.6"
+    environment:
+      - KEYCLOAK_ADMIN="admin"
+      - KEYCLOAK_ADMIN_PASSWORD="admin"
+    ports:
+      - "8080:8080"
+    command: start-dev
